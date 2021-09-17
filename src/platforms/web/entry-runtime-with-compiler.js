@@ -13,12 +13,14 @@ const idToTemplate = cached(id => {
   const el = query(id)
   return el && el.innerHTML
 })
-
+// 保存Vue实例的$mount方法
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
   el?: string | Element,
+  // 非ssr情况下为false, ssr的时候为true
   hydrating?: boolean
 ): Component {
+  // 获取el对象
   el = el && query(el)
 
   /* istanbul ignore if */
