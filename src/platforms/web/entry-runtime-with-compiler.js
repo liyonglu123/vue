@@ -55,9 +55,11 @@ Vue.prototype.$mount = function (
         if (process.env.NODE_ENV !== 'production') {
           warn('invalid template option:' + template, this)
         }
+        // 否则返回当前实例
         return this
       }
     } else if (el) {
+      // 如果没有template, 获取el的outerHTML 作为模板
       template = getOuterHTML(el)
     }
     if (template) {
@@ -65,7 +67,7 @@ Vue.prototype.$mount = function (
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
       }
-
+      // 把template 转换成 render 函数
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,
