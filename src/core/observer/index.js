@@ -142,6 +142,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
   return ob
 }
 
+// 为对象定义一个响应式的属性
 /**
  * Define a reactive property on an Object.
  */
@@ -152,39 +153,45 @@ export function defineReactive (
   customSetter?: ?Function,
   shallow?: boolean
 ) {
+  // 创建依赖对象实例
   const dep = new Dep()
-
+  // 获取 obj 的属性描述符对象
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return
   }
-
+  // 提供预定义的存取器函数
   // cater for pre-defined getter/setters
   const getter = property && property.get
   const setter = property && property.set
   if ((!getter || setter) && arguments.length === 2) {
     val = obj[key]
   }
-
+  // 判断是否递归观察子对象，并将子对象属性都转化成 getter/setter,返回子观察对象
   let childOb = !shallow && observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
+      // 如果预定义的getter 存在，则value 等于getter调用的返回值，否则直接赋予属性值
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
         dep.depend()
         if (childOb) {
           childOb.dep.depend()
+          // 如果属性是数组，则特殊处理收集数组对象依赖
           if (Array.isArray(value)) {
             dependArray(value)
           }
         }
       }
+      // 返回属性值
       return value
     },
     set: function reactiveSetter (newVal) {
+      // 如果预定义的getter 存在，则value 等于getter调用的返回值，否则直接赋予属性值
       const value = getter ? getter.call(obj) : val
+      // 如果新值等于旧值或者新值旧值为NaN则不执行
       /* eslint-disable no-self-compare */
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
@@ -193,14 +200,18 @@ export function defineReactive (
       if (process.env.NODE_ENV !== 'production' && customSetter) {
         customSetter()
       }
+      // 如果没有 setter 直接返回
       // #7981: for accessor properties without setter
       if (getter && !setter) return
+      // 如果预定义setter存在则调用，否则直接更新新值
       if (setter) {
         setter.call(obj, newVal)
       } else {
         val = newVal
       }
+      // 如果新值是对象，观察子对象并返回子的observer 对象
       childOb = !shallow && observe(newVal)
+      // 派发更新（发布更改通知）
       dep.notify()
     }
   })
