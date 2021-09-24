@@ -177,6 +177,7 @@ export function defineReactive (
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
         dep.depend()
+        // 如果子观察目标存在，建立子对象的依赖关系
         if (childOb) {
           childOb.dep.depend()
           // 如果属性是数组，则特殊处理收集数组对象依赖
