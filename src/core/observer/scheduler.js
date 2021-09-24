@@ -163,7 +163,7 @@ function callActivatedHooks (queue) {
  */
 export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
-  if (has[id] == null) {
+  if (has[id] == null) {  // 防止重复处理
     has[id] = true
     if (!flushing) {
       queue.push(watcher)
