@@ -537,6 +537,7 @@ export function createPatchFunction (backend) {
     // note we only do this if the vnode is cloned -
     // if the new node is not cloned it means the render functions have been
     // reset by the hot-reload-api and we need to do a proper re-render.
+    // 如果新旧 VNode 都是静态的，那么只需要替换componentInstance
     if (isTrue(vnode.isStatic) &&
       isTrue(oldVnode.isStatic) &&
       vnode.key === oldVnode.key &&
@@ -555,24 +556,35 @@ export function createPatchFunction (backend) {
     const oldCh = oldVnode.children
     const ch = vnode.children
     if (isDef(data) && isPatchable(vnode)) {
+      // 调用cbs 中的钩子函数，操作节点的属性、样式、事件。。。
       for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
+      // 用户的自定义钩子
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
     }
+    // 新节点没有文本
     if (isUndef(vnode.text)) {
+      // 老节点和老节点都有子节点
+      // 对子节点进行diff 操作，调用updateChildren
       if (isDef(oldCh) && isDef(ch)) {
         if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
       } else if (isDef(ch)) {
+        // 新的有子节点，老的没有子节点
         if (process.env.NODE_ENV !== 'production') {
           checkDuplicateKeys(ch)
         }
+        // 先清空老节点 DOM的文本内容，然后为当前DOM节点加入子节点
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
       } else if (isDef(oldCh)) {
+        // 老节点有子节点，新的没有子节点
+        // 删除老节点中的子节点
         removeVnodes(oldCh, 0, oldCh.length - 1)
       } else if (isDef(oldVnode.text)) {
         nodeOps.setTextContent(elm, '')
       }
     } else if (oldVnode.text !== vnode.text) {
+      // 新旧节点都有文本节点
+      // 修改文本
       nodeOps.setTextContent(elm, vnode.text)
     }
     if (isDef(data)) {
