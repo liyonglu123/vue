@@ -706,7 +706,9 @@ export function createPatchFunction (backend) {
   // core 中的createPatchFunction(backend), const { modules, nodeOps} = backend
   // core 中的方法和平台无关，传入两个参数后，可以在上面的函数中使用这两个参数
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
+    // 新的 VNode 不存在
     if (isUndef(vnode)) {
+      // 老的VNode存在，执行 Destroy 钩子函数
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
     }
@@ -714,16 +716,23 @@ export function createPatchFunction (backend) {
     let isInitialPatch = false
     const insertedVnodeQueue = []
 
+    // 老的 VNode 不存在
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true
+      // 创建新的 VNode
       createElm(vnode, insertedVnodeQueue)
     } else {
+      // 新的老的 VNode 都存在，更新
       const isRealElement = isDef(oldVnode.nodeType)
+      // 判断参数1是否是真实 DOM， 不是真实DOM
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        // 更新操作， diff 算法
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
+        // 第一个参数是真实DOM，创建VNode
+        // 初始化
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
@@ -755,6 +764,7 @@ export function createPatchFunction (backend) {
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)
 
+        // 创建DOM节点
         // create new node
         createElm(
           vnode,
