@@ -130,6 +130,7 @@ export function _createElement (
     }
   } else {
     // direct component options / constructor
+    // 用来创建组件
     vnode = createComponent(tag, data, context, children)
   }
   if (Array.isArray(vnode)) {
