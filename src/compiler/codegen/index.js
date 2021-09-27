@@ -58,6 +58,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
     el.pre = el.pre || el.parent.pre
   }
 
+  // staticProcessed 查看是否已经处理过了，防止重复调用
   if (el.staticRoot && !el.staticProcessed) {
     return genStatic(el, state)
   } else if (el.once && !el.onceProcessed) {
@@ -78,6 +79,8 @@ export function genElement (el: ASTElement, state: CodegenState): string {
     } else {
       let data
       if (!el.plain || (el.pre && state.maybeComponent(el))) {
+        // 生成元素的属性、指令、事件等
+        // 处理各种指令，包括 genDirectives(model/text/html)
         data = genData(el, state)
       }
 
@@ -106,6 +109,7 @@ function genStatic (el: ASTElement, state: CodegenState): string {
   if (el.pre) {
     state.pre = el.pre
   }
+  // 使用数组是可能有多个静态节点
   state.staticRenderFns.push(`with(this){return ${genElement(el, state)}}`)
   state.pre = originalPreState
   return `_m(${
@@ -534,13 +538,16 @@ function genNode (node: ASTNode, state: CodegenState): string {
 }
 
 export function genText (text: ASTText | ASTExpression): string {
+  // _v() ---> createTextVNode()
   return `_v(${text.type === 2
     ? text.expression // no need for () because already wrapped in _s()
+    // JSON.stringify(text.text) 字符串加上引号 hello -> "hello"
     : transformSpecialNewlines(JSON.stringify(text.text))
   })`
 }
 
 export function genComment (comment: ASTText): string {
+  // JSON.stringify(text.text) 字符串加上引号 hello -> "hello"
   return `_e(${JSON.stringify(comment.text)})`
 }
 
