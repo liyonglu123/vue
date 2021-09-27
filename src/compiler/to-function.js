@@ -18,7 +18,9 @@ function createFunction (code, errors) {
   }
 }
 
+// 模板编译的入口函数
 export function createCompileToFunctionFn (compile: Function): Function {
+  // 目的是通过闭包缓存编译的结果
   const cache = Object.create(null)
 
   return function compileToFunctions (
@@ -49,6 +51,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     }
 
     // check cache
+    // 1. 读取缓存中的 CompiledFuntionsResult 对象，如果有直接返回
     const key = options.delimiters
       ? String(options.delimiters) + template
       : template
@@ -57,6 +60,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     }
 
     // compile
+    // 2. 把模板编译为编译对象（render, staticRenderFns）, 字符串形式的js代码
     const compiled = compile(template, options)
 
     // check compilation errors/tips
@@ -90,6 +94,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     // turn code into functions
     const res = {}
     const fnGenErrors = []
+    // 3. 把字符串形式的js代码转化成js方法
     res.render = createFunction(compiled.render, fnGenErrors)
     res.staticRenderFns = compiled.staticRenderFns.map(code => {
       return createFunction(code, fnGenErrors)
@@ -108,7 +113,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
         )
       }
     }
-
+    // 4. 缓存并返回res对象（render，staticRenderFns方法）
     return (cache[key] = res)
   }
 }
