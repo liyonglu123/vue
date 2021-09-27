@@ -12,6 +12,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
       template: string,
       options?: CompilerOptions
     ): CompiledResult {
+      // 合并选项，调用baseCompile进行编译，最后记录错误，返回编译好的对象
       const finalOptions = Object.create(baseOptions)
       const errors = []
       const tips = []
