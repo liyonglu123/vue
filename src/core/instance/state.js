@@ -57,7 +57,9 @@ export function initState (vm: Component) {
   } else {
     observe(vm._data = {}, true /* asRootData */)
   }
+  // 计算属性Watcher
   if (opts.computed) initComputed(vm, opts.computed)
+  // 用户Watcher
   if (opts.watch && opts.watch !== nativeWatch) {
     initWatch(vm, opts.watch)
   }
