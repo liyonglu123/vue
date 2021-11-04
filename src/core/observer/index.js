@@ -44,6 +44,7 @@ export class Observer {
 
   constructor (value: any) {
     this.value = value
+    // dep 如果使用Vue.set/delete添加或者删除属性，负责通知更新
     this.dep = new Dep()
     // 初始化实例的 vmCount 为 0
     this.vmCount = 0
@@ -175,9 +176,12 @@ export function defineReactive (
     get: function reactiveGetter () {
       // 如果预定义的getter 存在，则value 等于getter调用的返回值，否则直接赋予属性值
       const value = getter ? getter.call(obj) : val
+      // dep n : n watcher
       if (Dep.target) {
+        // 建立dep和Dep.target之间的依赖关系
         dep.depend()
         // 如果子观察目标存在，建立子对象的依赖关系
+        // 建立ob内部和Dep.target之间的依赖关系
         if (childOb) {
           childOb.dep.depend()
           // 如果属性是数组，则特殊处理收集数组对象依赖
