@@ -35,6 +35,8 @@ import {
 // inline hooks to be invoked on component VNodes during patch
 const componentVNodeHooks = {
   init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
+    // 如果当前组件是缓存的，keep-alive中的组件
+    // 直接中缓存中获取，不需要再创建
     if (
       vnode.componentInstance &&
       !vnode.componentInstance._isDestroyed &&
@@ -44,10 +46,12 @@ const componentVNodeHooks = {
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
+      // 通常走，初始化， 获取组件的实例并执行挂载
       const child = vnode.componentInstance = createComponentInstanceForVnode(
         vnode,
         activeInstance
       )
+      // 如果存在父子组件嵌套，两者的生命生命周期的顺序是什么
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
