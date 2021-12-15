@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue组件data必须是函数形式</title>
+</head>
+<body>
+  <div id="app">
+    <h1>Vue组件data为什么必须是函数形式？</h1>
+    <comp></comp>
+    <comp></comp>
+    <p>{{ counter }}</p>
+  </div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    Vue.component("comp", {
+      template: '<div @click="counter++">{{counter}}</div>',
+      // data: {counter: 0}
+      data() {
+        return {
+          counter: 1
+        }
+      }
+    })
+    // 创建实例， 单例
+    const vm = new Vue({
+      el: '#app',
+      data: {counter: 2}
+    })
+  </script>
+</body>
+</html>
